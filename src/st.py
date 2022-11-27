@@ -160,25 +160,53 @@ class InnerNode(Tree[Ord]):
 
 
 def rot_left(n: Tree[Ord]) -> Tree[Ord]:
-    """Rotate n left."""
-    ...
-    return n
+    """Rotate n left.
+    # Test for right-heavy tree where the heaviness comes from the
+    # outer grandchild.
+    >>> rot_left(InnerNode('A', InnerNode('B'), InnerNode('C', InnerNode('D', InnerNode('E')), InnerNode('F', None, InnerNode('G')))))
+    (((*, B[0], *), A[0], ((*, E[0], *), D[0], *)), C[0], (*, F[0], (*, G[0], *)))
+    # Hvorfor virker sådan en test ikke?
+    """
+    n = InnerNode(n.right.value, InnerNode(n.value, n.left, \
+        n.right.left), n.right.right)
+    return n 
 
 
 def rot_right(n: Tree[Ord]) -> Tree[Ord]:
-    """Rotate n right."""
-    ...
-    return n
+    """Rotate n right.""" # NB: The search tree data is implemented as
+    # a persistent data structure. I.e., a new search tree (given by a 
+    # node that contain nodes) must be returned. 
+    n = InnerNode(n.left.value, n.left.left, InnerNode(n.value, n.left.right,\
+        n.right))
+    return n 
 
 
 def balance(n: Tree[Ord]) -> Tree[Ord]:
     """Re-organize n to balance it."""
     # Simple rotation solution
-    if n.bf <= -2:  # left-heavy
+    if n.bf <= -2:  # left-heavy.
+        if n.left.bf > 0: # left-heavy tree due to inner grand-child. 
+            # Left-right double rotation.
+            return rot_right(InnerNode(
+                n.value, 
+                rot_left(n.left),
+                n.right
+            ))
+        # if n.left.bf <= 0: # Left-heavy tree due to outer grandchild. 
+        # Right-rotation. 
         return rot_right(n)
     if n.bf >= 2:   # right-heavy
+        if n.right.bf < 0: # right-heavy tree due to inner grandchild.
+            # Right-left double rotation.
+            return rot_left(InnerNode(
+                n.value,
+                n.left,
+                rot_right(n.right)
+            ))
+        # right-heavy tree due to outer grandchild.
         return rot_left(n)
-    return n
+    return n # if n.bf = -1 or 0 or 1, the tree n is considered 
+    # balanced.
 
 
 def contains(t: Tree[Ord], val: Ord) -> bool:
@@ -230,3 +258,18 @@ def remove(t: Tree[Ord], val: Ord) -> Tree[Ord]:
 
     x = rightmost(t.left)
     return balance(InnerNode(x, remove(t.left, x), t.right))
+
+# function to determine length of search tree.
+# recursive.
+
+def rec_len(node) -> int:
+    if node is Empty:
+        return 0
+    return 1 + len(node.left) + len(node.right)
+
+# tail-recursive version
+def tail_rec_len(node, len=0) -> int:
+    if node is Empty:
+        pass
+
+# tail-recursive version mulig?

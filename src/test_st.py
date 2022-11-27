@@ -35,6 +35,7 @@ def is_balanced(n: Tree[Ord]) -> bool:
 def test_balanced() -> None:
     """Test that we have a balanced tree."""
     x: list[int] = random.sample(range(0, 20), 20)
+    print(x)
     t: Tree[int] = Empty
     for a in x:
         t = insert(t, a)
